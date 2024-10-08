@@ -10,6 +10,7 @@ interface CategoryProps {
 }
 
 const Category = ({ onCategoryClick }: CategoryProps) => {
+  const [activeCategory, setActiveCategory] = useState<number>(0)
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,13 @@ const Category = ({ onCategoryClick }: CategoryProps) => {
     fetchCategories();
   }, []);
 
+  const handleCategoryClick = (categoryId: number) => {
+    setActiveCategory(categoryId);
+    onCategoryClick(categoryId);
+  };
+
   const handleAllClick = () => {
+    setActiveCategory(0);
     onCategoryClick(0);
   };
 
@@ -42,11 +49,11 @@ const Category = ({ onCategoryClick }: CategoryProps) => {
     <div className='border p-3 rounded-md mb-5'>
       {error && <p className='text-red-500'>{error}</p>}
       <ul className='flex gap-x-4'>
-        <li onClick={handleAllClick} className='py-2 px-4 rounded-md text-sm cursor-pointer'>
+        <li onClick={handleAllClick} className={`py-2 px-4 rounded-md text-sm cursor-pointer ${activeCategory === 0 ? 'bg-teal-600 text-white' : ''}`}>
           Semua
         </li>
         {categories.map(category => (
-          <li key={category.id} onClick={() => onCategoryClick(category.id)} className='py-2 px-4 rounded-md text-sm cursor-pointer'>
+          <li key={category.id} onClick={() => handleCategoryClick(category.id)} className={`py-2 px-4 rounded-md text-sm cursor-pointer ${activeCategory === category.id ? 'bg-teal-600 text-white' : ''}`}>
             {category.name}
           </li>
         ))}
