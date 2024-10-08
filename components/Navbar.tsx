@@ -1,12 +1,27 @@
 import React, { ChangeEvent, useState } from 'react'
 
-const Navbar = () => {
+interface NavbarProps {
+    onSearch: (products: any[]) => void;
+}
+
+const Navbar = ({ onSearch }: NavbarProps) => {
     const [query, setQuery] = useState<string>('');
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const newQuery = event.target.value;
         setQuery(newQuery);
-        console.log('Mencari:', newQuery);
+
+        if (newQuery) {
+            try {
+                const response = await fetch(`/api/products?search=${newQuery}`);
+                const result = await response.json();
+                onSearch(result.data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        } else {
+            onSearch([]);
+        }
     };
     return (
         <header className='fixed w-full'>

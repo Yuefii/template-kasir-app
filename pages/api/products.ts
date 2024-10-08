@@ -4,12 +4,16 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
-        const { category_id } = req.query;
+        const { search, category_id } = req.query;
 
         let query = supabase.from('products').select('*');
 
         if (category_id) {
             query = query.eq('category_id', category_id);
+        }
+
+        if (search) {
+            query = query.ilike('name', `%${search}%`);
         }
 
         const { data, error } = await query;
