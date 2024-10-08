@@ -24,6 +24,8 @@ interface Order {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [transactionHistory, setTransactionHistory] = useState<any[]>([]);
+
 
   const fetchAllProducts = async () => {
     try {
@@ -75,7 +77,7 @@ export default function Home() {
 
   const addToOrder = async (product: Product) => {
     const existingOrder = orders.find(order => order.product.id === product.id);
-    
+
     if (existingOrder) {
       const updatedOrders = orders.map(order =>
         order.product.id === product.id
@@ -98,7 +100,7 @@ export default function Home() {
         product,
         quantity: 1,
       };
-      
+
       setOrders([...orders, newOrderItem]);
       await fetch('/api/orders', {
         method: 'POST',
@@ -123,6 +125,32 @@ export default function Home() {
       },
       body: JSON.stringify({ product_id: productId }),
     });
+  };
+  const saveTransaction = async () => {
+    const totalAmount = orders.reduce((total, order) => total + order.product.price * order.quantity, 0);
+    const newTransaction = {
+      id: Date.now(),
+      items: orders,
+      total: totalAmount,
+    };
+    setTransactionHistory([...transactionHistory, newTransaction]);
+    await fetch('/api/transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTransaction),
+    });
+    for (const order of orders) {
+      await fetch('/api/orders', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: order.product.id }),
+      });
+    }
+    setOrders([]);
   };
 
   useEffect(() => {
@@ -166,7 +194,7 @@ export default function Home() {
             <span className="text-xl text-center">Total Bayar :</span>
             <span>Rp.{orders.reduce((total, order) => total + order.product.price * order.quantity, 0)}</span>
           </div>
-          <button className="bg-teal-600 p-3 rounded-md text-white w-full">Bayar Sekarang</button>
+          <button onClick={saveTransaction} className="bg-teal-600 p-3 rounded-md text-white w-full">Bayar Sekarang</button>
         </div>
       </div>
     </div>
