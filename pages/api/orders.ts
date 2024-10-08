@@ -17,5 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(error ? 400 : 201).json(error ? error.message : data);
     }
 
+    if (req.method === 'DELETE') {
+        const { product_id } = req.body;
+        const { data, error } = await supabase
+          .from('orders')
+          .delete()
+          .match({ product_id });
+    
+        return res.status(error ? 400 : 200).json(error ? error.message : { data: data });
+      }
+
     return res.status(405).json({ message: 'Method not allowed' });
 }

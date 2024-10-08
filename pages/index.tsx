@@ -113,6 +113,18 @@ export default function Home() {
     }
   };
 
+  const removeOrder = async (productId: number) => {
+    const updatedOrders = orders.filter(order => order.product.id !== productId);
+    setOrders(updatedOrders);
+    await fetch('/api/orders', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: productId }),
+    });
+  };
+
   useEffect(() => {
     fetchAllProducts();
     fetchOrders();
@@ -144,7 +156,7 @@ export default function Home() {
               </div>
               <div className="flex gap-x-4 items-center">
                 <span>Rp.{order.product.price * order.quantity}</span>
-                <span className="rounded-md py-2 px-3 text-xs text-white bg-red-600">X</span>
+                <span onClick={() => removeOrder(order.product.id)} className="rounded-md py-2 px-3 text-xs text-white bg-red-600">X</span>
               </div>
             </li>
           ))}
