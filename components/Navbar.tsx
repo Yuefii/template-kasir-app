@@ -26,13 +26,13 @@ const Navbar = ({ onSearch }: NavbarProps) => {
     return (
         <header className='fixed w-full'>
             <nav className='flex justify-center items-center h-16 bg-teal-600'>
-                <div className="flex justify-center items-center w-full">
+                <div className="flex ml-5 items-center w-full">
                     <input
                         type="text"
                         value={query}
                         onChange={handleChange}
                         placeholder="Cari sesuatu..."
-                        className="border rounded-lg py-2 px-4 mr-2 w-full max-w-lg focus:outline-none focus:ring-0"
+                        className="border rounded-lg py-2 px-4 mr-2 w-full max-w-xl focus:outline-none focus:ring-0"
                     />
                 </div>
             </nav>
