@@ -1,7 +1,7 @@
-import Image from "next/image";
 import localFont from "next/font/local";
 import Card from "@/components/Card";
 import Category from "@/components/Category";
+import { useEffect, useState } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,50 +14,62 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+}
+
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([])
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const result = await response.json();
+      setProducts(result.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchProductsByCategory = async (categoryId: number) => {
+    if (categoryId === 0) {
+      await fetchAllProducts();
+      return;
+    }
+  
+    try {
+      const response = await fetch(`/api/products?category_id=${categoryId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const result = await response.json();
+      setProducts(result.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, []);
+  
   return (
     <div className={`${geistSans.variable} ${geistMono.variable} flex`}>
-
-      {/* Konten Utama */}
       <div className="mt-16 flex-1 p-4 h-[878px] overflow-auto">
-        <Category />
+        <Category onCategoryClick={fetchProductsByCategory} />
         <div className="grid grid-cols-3 gap-3">
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
-          <Card
-            title="Soto Ayam"
-            image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-          />
+        {products.map(product => (
+            <Card
+              key={product.id}
+              title={product.name}
+              image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
+            />
+          ))}
         </div>
       </div>
       {/* Sidebar */}

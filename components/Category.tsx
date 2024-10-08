@@ -5,7 +5,11 @@ interface Category {
   name: string;
 }
 
-const Category = () => {
+interface CategoryProps {
+  onCategoryClick: (categoryId: number) => void;
+}
+
+const Category = ({ onCategoryClick }: CategoryProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,12 +33,20 @@ const Category = () => {
 
     fetchCategories();
   }, []);
+
+  const handleAllClick = () => {
+    onCategoryClick(0);
+  };
+
   return (
     <div className='border p-3 rounded-md mb-5'>
       {error && <p className='text-red-500'>{error}</p>}
       <ul className='flex gap-x-4'>
+        <li onClick={handleAllClick} className='py-2 px-4 rounded-md text-sm cursor-pointer'>
+          Semua
+        </li>
         {categories.map(category => (
-          <li key={category.id} className='py-2 px-4 rounded-md text-sm'>
+          <li key={category.id} onClick={() => onCategoryClick(category.id)} className='py-2 px-4 rounded-md text-sm cursor-pointer'>
             {category.name}
           </li>
         ))}
