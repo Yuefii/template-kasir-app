@@ -1,3 +1,4 @@
+import { formatRupiah } from "@/common/utils/format_price";
 import Card from "@/components/Card";
 import Category from "@/components/Category";
 import Navbar from "@/components/Navbar";
@@ -24,8 +25,8 @@ export default function Home() {
               <div key={product.id} onClick={() => addToOrder(product)}>
                 <Card
                   title={product.name}
-                  image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90"
-                />
+                  formattedPrice={formatRupiah(product.price)}
+                  image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90" price={0}                />
               </div>
             ))}
           </div>
@@ -40,7 +41,7 @@ export default function Home() {
                   <span className="text-teal-600 font-bold">x{order.quantity}</span>
                 </div>
                 <div className="flex gap-x-4 items-center">
-                  <span>Rp.{order.product.price * order.quantity}</span>
+                  <span>{formatRupiah(order.product.price * order.quantity)}</span>
                   <span onClick={() => removeOrder(order.product.id)} className="rounded-md py-2 px-3 text-xs text-white bg-red-600">X</span>
                 </div>
               </li>
@@ -49,7 +50,7 @@ export default function Home() {
           <div className="">
             <div className="flex justify-between items-center py-3 border-b border-black mb-4">
               <span className="text-xl text-center">Total Bayar :</span>
-              <span>Rp.{orders.reduce((total, order) => total + order.product.price * order.quantity, 0)}</span>
+              <span>{formatRupiah(orders.reduce((total, order) => total + order.product.price * order.quantity, 0))}</span>
             </div>
             <button onClick={saveTransaction} className="bg-teal-600 p-3 rounded-md text-white w-full">Bayar Sekarang</button>
           </div>
