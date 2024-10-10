@@ -4,11 +4,25 @@ import Category from "@/components/Category";
 import Navbar from "@/components/Navbar";
 import { useOrders } from "@/hooks/use_orders";
 import { useProducts } from "@/hooks/use_products";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { products, searchResults, fetchProductsByCategory, handleSearchResults } = useProducts();
   const { orders, fetchOrders, addToOrder, removeOrder, saveTransaction } = useOrders();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBayarSekarang = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleLanjutkan = () => {
+    saveTransaction();
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -26,7 +40,7 @@ export default function Home() {
                 <Card
                   title={product.name}
                   formattedPrice={formatRupiah(product.price)}
-                  image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90" price={0}                />
+                  image="https://akcdn.detik.net.id/visual/2024/05/20/soto-ayam_43.jpeg?w=720&q=90" price={0} />
               </div>
             ))}
           </div>
@@ -52,10 +66,33 @@ export default function Home() {
               <span className="text-xl text-center">Total Bayar :</span>
               <span>{formatRupiah(orders.reduce((total, order) => total + order.product.price * order.quantity, 0))}</span>
             </div>
-            <button onClick={saveTransaction} className="bg-teal-600 p-3 rounded-md text-white w-full">Bayar Sekarang</button>
+            <button onClick={handleBayarSekarang} className="bg-teal-600 p-3 rounded-md text-white w-full">Bayar Sekarang</button>
           </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white w-[400px] p-6 rounded-lg shadow-xl transition-transform transform hover:scale-105">
+            <h2 className="text-2xl mb-5 font-semibold text-teal-600">Konfirmasi Pembayaran</h2>
+            <p className="text-lg text-neutral-700">Apakah Anda yakin ingin melanjutkan pembayaran?</p>
+            <div className="flex justify-between mt-10 gap-x-5">
+              <button
+                onClick={handleLanjutkan}
+                className="w-full bg-teal-600 text-white font-semibold p-3 rounded-lg shadow-md hover:bg-teal-700 transition duration-200"
+              >
+                Lanjutkan
+              </button>
+              <button
+                onClick={handleCancel}
+                className="w-full bg-gray-300 text-gray-800 font-semibold p-3 rounded-lg shadow-md hover:bg-gray-400 transition duration-200"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { jsPDF } from "jspdf";
+import { formatRupiah } from "@/common/utils/format_price";
 
 interface Product {
   id: number;
@@ -64,7 +66,46 @@ export const useOrders = () => {
       body: JSON.stringify(newTransaction),
     });
     await Promise.all(orders.map(order => deleteOrder(order.product.id)));
+    generatePDF(newTransaction.items, totalAmount);
     setOrders([]);
+  };
+
+  const generatePDF = (items: OrderItem[], total: number) => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a6' });
+    const storeName = "Terima Kasih";
+    const date = new Date().toLocaleString();
+
+    doc.setFontSize(10);
+    doc.text(storeName, 5, 10);
+    doc.setFontSize(8);
+    doc.text(`Tanggal: ${date}`, 5, 15);
+    doc.text("==========================================================", 5, 20);
+    doc.text("Item", 5, 25);
+    doc.text("Qty", 50, 25);
+    doc.text("Harga", 80, 25);
+    doc.text("Total", 110, 25);
+    doc.text("==========================================================", 5, 30);
+
+    items.forEach((order, index) => {
+      const itemTotal = order.product.price * order.quantity;
+      const yPosition = 35 + (8 * index);
+      doc.text(order.product.name, 5, yPosition);
+      doc.text(order.quantity.toString(), 50, yPosition);
+      doc.text(formatRupiah(order.product.price), 80, yPosition);
+      doc.text(formatRupiah(itemTotal), 110, yPosition);
+    });
+
+    doc.text("==========================================================", 5, 35 + (8 * items.length));
+    doc.text(`Total: ${formatRupiah(total)}`, 5, 40 + (8 * items.length));
+    const pdfOutput = doc.output('datauristring');
+    const pdfWindow = window.open('');
+
+    if (pdfWindow) {
+      pdfWindow.document.write(`<iframe width='100%' height='100%' src='${pdfOutput}'></iframe>`);
+      pdfWindow.document.close();
+    } else {
+      console.error("Gagal membuka jendela baru untuk preview PDF.");
+    }
   };
 
   const createOrder = async (productId: number, quantity: number) => {
