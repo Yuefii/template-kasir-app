@@ -1,31 +1,39 @@
-import { supabase } from "@/common/libs/supabase";
-import { NextApiRequest, NextApiResponse } from "next";
+import { supabase } from '@/common/libs/supabase'
+import { NextApiRequest, NextApiResponse } from 'next'
 
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === 'GET') {
+    const { search, category_id } = req.query
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
-        const { search, category_id } = req.query;
+    let query = supabase.from('products').select('*')
 
-        let query = supabase.from('products').select('*');
-
-        if (category_id) {
-            query = query.eq('category_id', category_id);
-        }
-
-        if (search) {
-            query = query.ilike('name', `%${search}%`);
-        }
-
-        const { data, error } = await query;
-
-        return res.status(error ? 400 : 200).json(error ? error.message : { data: data });
+    if (category_id) {
+      query = query.eq('category_id', category_id)
     }
 
-    if (req.method === 'POST') {
-        const { name, price, category_id } = req.body;
-        const { data, error } = await supabase.from('products').insert([{ name, price, category_id }]);
-        return res.status(error ? 400 : 201).json(error ? error.message : { data: data });
+    if (search) {
+      query = query.ilike('name', `%${search}%`)
     }
 
-    return res.status(405).json({ message: 'Method not allowed' });
+    const { data, error } = await query
+
+    return res
+      .status(error ? 400 : 200)
+      .json(error ? error.message : { data: data })
+  }
+
+  if (req.method === 'POST') {
+    const { name, price, category_id } = req.body
+    const { data, error } = await supabase
+      .from('products')
+      .insert([{ name, price, category_id }])
+    return res
+      .status(error ? 400 : 201)
+      .json(error ? error.message : { data: data })
+  }
+
+  return res.status(405).json({ message: 'Method not allowed' })
 }
